@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<xex>
+  <format>
+    <compressed />
+    <unencrypted />
+  </format>
+  <!-- Keep this in sync with XDON.h and BASE_VER & UPDATE_VER environment variables. -->
+  <version major="1" minor="0" build="0" qfe="0" />
+  <!-- XEX_PRIVILEGE_NO_FORCE_REBOOT - Stops disc eject from exiting the app. -->
+  <privilege id="0" />
+  <!-- XEX_PRIVILEGE_INSECURE_SOCKETS - Enables creation of insecure sockets that do not use the XSP networking protocol wrapper. -->
+  <privilege id="6" />
+  <!-- XEX_PRIVILEGE_SET_DASH_CONTEXT - Enables the use of XamSetDashContext to disable the Xbox Guide. -->
+  <privilege id="8" />
+  <mediaid dword="0x13371337" />
+  <!-- Hex for 'XDON'. -->
+  <titleid id="0x58444F4E" />
+  <section file="BKND.png" name="BKND.png" memory="RO" />
+</xex>

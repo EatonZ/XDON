@@ -1,0 +1,163 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug_Retail|Xbox 360">
+      <Configuration>Debug_Retail</Configuration>
+      <Platform>Xbox 360</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Xbox 360">
+      <Configuration>Debug</Configuration>
+      <Platform>Xbox 360</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Xbox 360">
+      <Configuration>Release</Configuration>
+      <Platform>Xbox 360</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7FC1E02D-B441-4B33-BE85-EE59815E4899}</ProjectGuid>
+    <Keyword>Xbox360Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Xbox 360'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Retail|Xbox 360'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Xbox 360'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Xbox 360'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Retail|Xbox 360'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Xbox 360'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Xbox 360'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Retail|Xbox 360'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Xbox 360'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Xbox 360'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <ExceptionHandling>false</ExceptionHandling>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <PrecompiledHeaderOutputFile>$(OutDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PreprocessorDefinitions>_DEBUG;_XBOX</PreprocessorDefinitions>
+      <CallAttributedProfiling>Callcap</CallAttributedProfiling>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>xbdm.lib;xnetd.lib;xavd.lib;d3d9d.lib;d3dx9d.lib</AdditionalDependencies>
+    </Link>
+    <ImageXex>
+      <ConfigurationFile>XDON.xml</ConfigurationFile>
+    </ImageXex>
+    <Deploy>
+      <DeploymentType>CopyToHardDrive</DeploymentType>
+    </Deploy>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Retail|Xbox 360'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <ExceptionHandling>false</ExceptionHandling>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <PrecompiledHeaderOutputFile>$(OutDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PreprocessorDefinitions>_DEBUG;_XBOX;_NO_DX</PreprocessorDefinitions>
+      <CallAttributedProfiling>Callcap</CallAttributedProfiling>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>xbdm.lib;xnetd.lib;xavd.lib</AdditionalDependencies>
+    </Link>
+    <ImageXex>
+      <ConfigurationFile>XDON.xml</ConfigurationFile>
+    </ImageXex>
+    <Deploy>
+      <DeploymentType>CopyToHardDrive</DeploymentType>
+    </Deploy>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Xbox 360'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <StringPooling>true</StringPooling>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <PrecompiledHeaderOutputFile>$(OutDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PreprocessorDefinitions>NDEBUG;_XBOX</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <SetChecksum>true</SetChecksum>
+      <AdditionalDependencies>xbdm.lib;xnet.lib;xav.lib;d3d9.lib;d3dx9.lib</AdditionalDependencies>
+      <AdditionalOptions>/pdbaltpath:%_PDB% %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <ImageXex>
+      <ConfigurationFile>XDON.xml</ConfigurationFile>
+    </ImageXex>
+    <Deploy>
+      <DeploymentType>CopyToHardDrive</DeploymentType>
+    </Deploy>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="lz4.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="XenonExports.h" />
+    <ClInclude Include="XDON.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="lz4.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Xbox 360'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug_Retail|Xbox 360'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Xbox 360'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="XDON.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="XDON.xml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
