@@ -20,7 +20,7 @@ The recommended development environment is:
 XDON should compile out of the box. There are a few build configurations:
 - **Debug:** Builds with debug libraries and settings. Use this for testing/development only.
 - **Release:** Builds a fully optimized version. Use this to build a version for normal use.
-- **Release_SkeletonKey:** Builds a special version for the Skeleton Key project. This differs from Release in 1 way: it will always do a cold reboot on exit.
+- **Release_SkeletonKey:** Builds a special version for the <a href="https://www.xbox-scene.info/articles/skeleton-key-v100-released-a-new-toolkit-for-the-original-xbox-r58/">Skeleton Key project</a>. This differs from Release in 1 way: it will always do a cold reboot on exit.
 
 # Compiling the Xbox 360 Version
 
