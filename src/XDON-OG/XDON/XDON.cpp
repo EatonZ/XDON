@@ -3,12 +3,22 @@
 
 #include "stdafx.h"
 #include "XDON.h"
+#include "font.h"
+
+#define SSFN_IMPLEMENTATION
+#define SFFN_MAXLINES 8192
+#define SSFN_memcmp memcmp
+#define SSFN_memset memset
+#define SSFN_realloc realloc
+#define SSFN_free free
+#include "ssfn.h"
 
 #pragma region
 
+XNADDR localAddr;
 LPDIRECT3DDEVICE8 pd3dDevice;
-LPDIRECT3DVERTEXBUFFER8 pVB; 
-LPDIRECT3DTEXTURE8 pTexture;
+LPDIRECT3DTEXTURE8 pBackgroundTexture;
+LPDIRECT3DTEXTURE8 pFontOverlayTexture;
 //Order must match DEVICE_INDEX_INTERNAL.
 DEVICE_INFO devices[] =
 {
@@ -69,6 +79,61 @@ BOOLEAN writeTookPlaceOnHDD = FALSE;
 #pragma endregion Defs
 
 #pragma region
+
+void CreateFontOverlay(int width, int height)
+{
+    ssfn_t fontContext;
+    memset(&fontContext, 0, sizeof(ssfn_t));
+	int result = ssfn_load(&fontContext, font_sfn);
+    assert(result == 0);
+
+    result = ssfn_select(&fontContext, SSFN_FAMILY_SERIF, "FreeSans", SSFN_STYLE_REGULAR, 64);
+    assert(result == 0);
+
+    HRESULT hr = D3DXCreateTexture(pd3dDevice, width, height, 1, 0, D3DFMT_LIN_A8R8G8B8, D3DPOOL_DEFAULT, &pFontOverlayTexture);
+	assert(!FAILED(hr));
+
+	D3DSURFACE_DESC surfaceDesc;
+	pFontOverlayTexture->GetLevelDesc(0, &surfaceDesc);
+
+	D3DLOCKED_RECT lockedRect;
+    hr = pFontOverlayTexture->LockRect(0, &lockedRect, NULL, 0);
+    assert(!FAILED(hr));
+
+	memset(lockedRect.pBits, 0x00, surfaceDesc.Size);
+
+	ssfn_buf_t buffer; 
+	memset(&buffer, 0, sizeof(buffer));
+	buffer.ptr = (uint8_t*)lockedRect.pBits;       
+	buffer.x = 10;
+	buffer.y = 100;
+	buffer.w = surfaceDesc.Width;                        
+	buffer.h = surfaceDesc.Height;                     
+	buffer.p = surfaceDesc.Width * 4;                          
+	buffer.bg = 0xff000000;
+	buffer.fg = 0xffffffff;      
+
+    char ipStr[255]; 
+    sprintf(ipStr, 
+        "IP Address: %u.%u.%u.%u",
+        (localAddr.ina.S_un.S_un_b.s_b1),
+        (localAddr.ina.S_un.S_un_b.s_b2),
+        (localAddr.ina.S_un.S_un_b.s_b3),
+        (localAddr.ina.S_un.S_un_b.s_b4)
+    );
+
+    char* message = ipStr;
+    int ret = 0;
+	while((ret = ssfn_render(&fontContext, &buffer, message)) > 0)
+	{
+		message += ret;
+	}
+
+	hr = pFontOverlayTexture->UnlockRect(0);
+	assert(!FAILED(hr));
+
+    ssfn_free(&fontContext);  
+}
 
 VOID Print(PRINT_VERBOSITY_FLAG Verbosity, const PCHAR Format, ...)
 {
@@ -484,8 +549,10 @@ VOID InitDisplay()
 	HRESULT hr = Direct3DCreate8(D3D_SDK_VERSION)->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, NULL, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &pd3dDevice);
 	assert(!FAILED(hr));
 
-	hr = D3DXCreateTextureFromFileInMemory(pd3dDevice, img, imgSize, &pTexture);
+	hr = D3DXCreateTextureFromFileInMemory(pd3dDevice, img, imgSize, &pBackgroundTexture);
     assert(!FAILED(hr));
+
+    CreateFontOverlay(width, height);
 
 	D3DXMATRIX matProj;
 	D3DXMatrixIdentity(&matProj);
@@ -501,29 +568,9 @@ VOID InitDisplay()
 	D3DXMatrixIdentity(&matWorld);
     hr = pd3dDevice->SetTransform(D3DTS_WORLD, &matWorld);
 	assert(!FAILED(hr));
-
-    VERTEX vertices[] =
-    {
-		{ -1.0f,  1.0f, 0.0f, 0.0f, 0.0f }, 
-        {  1.0f,  1.0f, 0.0f, 1.0f, 0.0f },
-        { -1.0f, -1.0f, 0.0f, 0.0f, 1.0f },
-		{  1.0f,  1.0f, 0.0f, 1.0f, 0.0f }, 
-        {  1.0f, -1.0f, 0.0f, 1.0f, 1.0f },
-        { -1.0f, -1.0f, 0.0f, 0.0f, 1.0f }
-    };
-    hr = pd3dDevice->CreateVertexBuffer(sizeof(vertices), 0, 0, 0, &pVB);
-	assert(!FAILED(hr));
-
-    PVERTEX pVertices;
-    hr = pVB->Lock(0, 0, (PBYTE*)&pVertices, 0);
-	assert(!FAILED(hr));
-    memcpy(pVertices, vertices, sizeof(vertices));
-
-    hr = pVB->Unlock();
-	assert(!FAILED(hr));
     
     //On OG Xbox, we can get away with doing all this just once (no render loop).
-    if (pTexture == NULL)
+    if (pBackgroundTexture == NULL)
     {
         //Display a red screen if the image failed to load (usually a memory issue) to encourage people to report it so it can be investigated.
         hr = pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL, D3DCOLOR_XRGB(255, 0, 0), 1.0f, 0);
@@ -561,14 +608,39 @@ VOID InitDisplay()
         assert(!FAILED(hr));
         hr = pd3dDevice->SetTextureStageState(0, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
         assert(!FAILED(hr));
-        hr = pd3dDevice->SetStreamSource(0, pVB, sizeof(VERTEX));
+        hr = pd3dDevice->SetTextureStageState(0, D3DTSS_ADDRESSU, D3DTADDRESS_CLAMP);
+        assert(!FAILED(hr));
+        hr = pd3dDevice->SetTextureStageState(0, D3DTSS_ADDRESSV, D3DTADDRESS_CLAMP);
         assert(!FAILED(hr));
         hr = pd3dDevice->SetVertexShader(D3DFVF_XYZ | D3DFVF_TEX1);
         assert(!FAILED(hr));
-        hr = pd3dDevice->SetTexture(0, pTexture);
+
+        VERTEX textureVertices[] =
+        {
+		    { -1.0f,  1.0f, 0.0f, 0.0f, 0.0f }, 
+            {  1.0f,  1.0f, 0.0f, 1.0f, 0.0f },
+            { -1.0f, -1.0f, 0.0f, 0.0f, 1.0f },
+		    {  1.0f,  1.0f, 0.0f, 1.0f, 0.0f }, 
+            {  1.0f, -1.0f, 0.0f, 1.0f, 1.0f },
+            { -1.0f, -1.0f, 0.0f, 0.0f, 1.0f }
+        };
+        hr = pd3dDevice->SetTexture(0, pBackgroundTexture);
         assert(!FAILED(hr));
-        hr = pd3dDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 2);
+        hr = pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, 2, textureVertices, sizeof(VERTEX));
         assert(!FAILED(hr));   
+
+        VERTEX fontOverlayVertices[] =
+        {
+		    { -1.0f,  1.0f, 0.0f, 0.0f, 0.0f }, 
+            {  1.0f,  1.0f, 0.0f, (float)width, 0.0f },
+            { -1.0f, -1.0f, 0.0f, 0.0f, (float)height },
+		    {  1.0f,  1.0f, 0.0f, (float)width, 0.0f }, 
+            {  1.0f, -1.0f, 0.0f, (float)width, (float)height },
+            { -1.0f, -1.0f, 0.0f, 0.0f, (float)height }
+        };
+        hr = pd3dDevice->SetTexture(0, pFontOverlayTexture);
+        assert(!FAILED(hr));
+        hr = pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, 2, fontOverlayVertices, sizeof(VERTEX));
     }
     hr = pd3dDevice->Present(NULL, NULL, NULL, NULL);
     assert(!FAILED(hr));
@@ -1299,7 +1371,6 @@ VOID __cdecl main()
     }
     else if ((linkStatus & XNET_ETHERNET_LINK_10MBPS) == XNET_ETHERNET_LINK_10MBPS) Print(PRINT_VERBOSITY_FLAG_ESSENTIAL_AND_ERRORS, "Slow ethernet link detected.");
 
-	XNADDR localAddr;
 	DWORD status = XNetGetTitleXnAddr(&localAddr);
 	while (status == XNET_GET_XNADDR_PENDING)
 	{
