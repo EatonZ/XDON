@@ -15,6 +15,7 @@
 
 #pragma region
 
+XNADDR localAddr;
 LPDIRECT3DDEVICE8 pd3dDevice;
 LPDIRECT3DTEXTURE8 pBackgroundTexture;
 LPDIRECT3DTEXTURE8 pFontOverlayTexture;
@@ -79,39 +80,15 @@ BOOLEAN writeTookPlaceOnHDD = FALSE;
 
 #pragma region
 
-void MeasureString(ssfn_t* pFontContext, const char* fontName, int fontStyle, int fontSize, const char* message, int* width, int* height)
-{
-	ssfn_bbox(pFontContext, message, width, height, NULL, NULL);
-}
-
-void RenderMessage(ssfn_t* pFontContext, int width, int height, uint8_t* imageBuffer, const char* message, int x, int y, int fontSize)
-{
-	int ret = 0;
-
-	ssfn_buf_t buffer; 
-	memset(&buffer, 0, sizeof(buffer));
-	buffer.ptr = (uint8_t*)imageBuffer;       
-	buffer.x = x;
-	buffer.y = y;
-	buffer.w = width;                        
-	buffer.h = height;                     
-	buffer.p = width * 4;                          
-	buffer.bg = 0xff000000;
-	buffer.fg = 0xffffffff;           
-
-	while((ret = ssfn_render(pFontContext, &buffer, message)) > 0)
-	{
-		message += ret;
-	}
-}
-
 void CreateFontOverlay(int width, int height)
 {
     ssfn_t fontContext;
     memset(&fontContext, 0, sizeof(ssfn_t));
 	int result = ssfn_load(&fontContext, font_sfn);
+    assert(result == 0);
 
-    ssfn_select(&fontContext, SSFN_FAMILY_SERIF, "FreeSans", SSFN_STYLE_REGULAR, 64);
+    result = ssfn_select(&fontContext, SSFN_FAMILY_SERIF, "FreeSans", SSFN_STYLE_REGULAR, 64);
+    assert(result == 0);
 
     HRESULT hr = D3DXCreateTexture(pd3dDevice, width, height, 1, 0, D3DFMT_LIN_A8R8G8B8, D3DPOOL_DEFAULT, &pFontOverlayTexture);
 	assert(!FAILED(hr));
@@ -125,8 +102,33 @@ void CreateFontOverlay(int width, int height)
 
 	memset(lockedRect.pBits, 0x00, surfaceDesc.Size);
 
-    RenderMessage(&fontContext, surfaceDesc.Width, surfaceDesc.Height, (uint8_t*)lockedRect.pBits, "EqUiNoX Was Here!!", 5, 100, 24); 
-	
+	ssfn_buf_t buffer; 
+	memset(&buffer, 0, sizeof(buffer));
+	buffer.ptr = (uint8_t*)lockedRect.pBits;       
+	buffer.x = 100;
+	buffer.y = 10;
+	buffer.w = surfaceDesc.Width;                        
+	buffer.h = surfaceDesc.Height;                     
+	buffer.p = surfaceDesc.Width * 4;                          
+	buffer.bg = 0xff000000;
+	buffer.fg = 0xffffffff;      
+
+    char ipStr[255]; 
+    sprintf(ipStr, 
+        "IP Address: %u.%u.%u.%u",
+        (localAddr.ina.S_un.S_un_b.s_b1),
+        (localAddr.ina.S_un.S_un_b.s_b2),
+        (localAddr.ina.S_un.S_un_b.s_b3),
+        (localAddr.ina.S_un.S_un_b.s_b4)
+    );
+
+    char* message = ipStr;
+    int ret = 0;
+	while((ret = ssfn_render(&fontContext, &buffer, message)) > 0)
+	{
+		message += ret;
+	}
+
 	hr = pFontOverlayTexture->UnlockRect(0);
 	assert(!FAILED(hr));
 
@@ -1369,7 +1371,6 @@ VOID __cdecl main()
     }
     else if ((linkStatus & XNET_ETHERNET_LINK_10MBPS) == XNET_ETHERNET_LINK_10MBPS) Print(PRINT_VERBOSITY_FLAG_ESSENTIAL_AND_ERRORS, "Slow ethernet link detected.");
 
-	XNADDR localAddr;
 	DWORD status = XNetGetTitleXnAddr(&localAddr);
 	while (status == XNET_GET_XNADDR_PENDING)
 	{
