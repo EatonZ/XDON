@@ -105,8 +105,8 @@ void CreateFontOverlay(int width, int height)
 	ssfn_buf_t buffer; 
 	memset(&buffer, 0, sizeof(buffer));
 	buffer.ptr = (uint8_t*)lockedRect.pBits;       
-	buffer.x = 100;
-	buffer.y = 10;
+	buffer.x = 10;
+	buffer.y = 100;
 	buffer.w = surfaceDesc.Width;                        
 	buffer.h = surfaceDesc.Height;                     
 	buffer.p = surfaceDesc.Width * 4;                          
