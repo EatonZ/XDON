@@ -52,7 +52,7 @@
 				Name="XboxDeploymentTool"/>
 			<Tool
 				Name="XboxImageTool"
-				StackSize="65536"
+				StackSize="0x40000"
 				IncludeDebugInfo="TRUE"
 				DontModifyHD="TRUE"
 				DontMountUD="TRUE"
@@ -112,7 +112,7 @@
 				Name="XboxDeploymentTool"/>
 			<Tool
 				Name="XboxImageTool"
-				StackSize="65536"
+				StackSize="0x40000"
 				DontModifyHD="TRUE"
 				DontMountUD="TRUE"
 				InsertFile="$(ProjectDir)BKND.png,BKND.png,R"
@@ -171,7 +171,7 @@
 				Name="XboxDeploymentTool"/>
 			<Tool
 				Name="XboxImageTool"
-				StackSize="65536"
+				StackSize="0x40000"
 				DontModifyHD="TRUE"
 				DontMountUD="TRUE"
 				InsertFile="$(ProjectDir)BKND.png,BKND.png,R"
@@ -200,6 +200,12 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath=".\font.h">
+			</File>
+			<File
+				RelativePath=".\ssfn.h">
+			</File>
 			<File
 				RelativePath=".\stdafx.h">
 			</File>
